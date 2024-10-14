@@ -20,7 +20,6 @@ async def on_ready():
         print(f'Synced {len(synced)} commands')
     except Exception as e:
         print(f'Error syncing commands: {e}')
-    check_members.start()
     await send_update_message()
     await bot.change_presence(status=discord.Status.online, activity=discord.CustomActivity(name='ことり鯖'))
 
