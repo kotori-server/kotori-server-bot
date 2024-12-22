@@ -25,6 +25,101 @@ async def on_ready():
     await send_update_message()
     await bot.change_presence(status=discord.Status.online, activity=discord.CustomActivity(name='ことり鯖'))
 
+@bot.event
+async def on_message(message):
+    global is_sending_message  # グローバル変数として宣言
+    message_content = message.content
+    message_id = message.id
+    guild = message.guild
+    channel = message.channel
+    if channel.name is None:
+        return
+    else:
+        channel_name = channel.name
+        channel_id = channel.id
+    user = message.author
+    user_id = user.id
+    user_name = user.name
+    user_avatar = user.avatar
+    server_id = message.guild.id
+    file = message.attachments
+    file_url = file[0].url if file else None
+    message_embeds = message.embeds
+
+    if match:
+        server_id = int(match.group(1))
+        channel_id = int(match.group(2))
+        message_id = int(match.group(3))
+
+        guild = bot.get_guild(server_id)
+        if guild:
+            channel = guild.get_channel(channel_id)
+            if channel:
+                try:
+                    target_message = await channel.fetch_message(message_id)
+                    message_link = f"https://discord.com/channels/{server_id}/{channel_id}/{message_id}"
+
+                    embed = discord.Embed(
+                        description=f"{target_message.content}\nFrom {channel.mention}",
+                        color=discord.Color.blue(),
+                        timestamp=target_message.created_at
+                    )
+                    author_avatar_url = target_message.author.display_avatar.url
+                    embed.set_author(name=target_message.author.display_name, icon_url=author_avatar_url)
+
+                    for attachment in target_message.attachments:
+                        embed.set_image(url=attachment.url)
+
+                    button = discord.ui.Button(label="メッセージ先はこちら", url=message_link)
+                    view = discord.ui.View()
+                    view.add_item(button)
+
+                    content_file = target_message.attachments
+                    content_file_url = content_file[0].url if content_file else None
+
+                    await message.channel.send(embed=embed, view=view)
+
+                    # ファイルをダウンロードして添付する処理
+                    if content_file_url:
+                        picture_extensions = ['png', 'jpg', 'jpeg', 'gif', 'webp']
+
+                        # ファイルが画像以外の場合に添付
+                        if not any(content_file_url.endswith(ext) for ext in picture_extensions):
+                            async with aiohttp.ClientSession() as session:
+                                async with session.get(content_file_url) as response:
+                                    if response.status == 200:
+                                        file_data = await response.read()
+                                        file_name = content_file[0].filename  # 元のファイル名を取得
+
+                                        # ファイルを一時保存して送信
+                                        with open(file_name, 'wb') as f:
+                                            f.write(file_data)
+
+                                        await message.channel.send(file=discord.File(file_name))
+
+                                        # 一時ファイルを削除
+                                        os.remove(file_name)
+                                    else:
+                                        await message.channel.send('ファイルのダウンロードに失敗しました。')
+
+                    else:
+                        print('ファイルが添付されていません。')
+
+                except discord.NotFound:
+                    await message.channel.send('メッセージが見つかりませんでした。')
+                except discord.Forbidden:
+                    await message.channel.send('メッセージを表示する権限がありません。')
+                except discord.HTTPException as e:
+                    await message.channel.send(f'メッセージの取得に失敗しました: {e}')
+
+@bot.tree.command(name="status",description="ステータスを設定するコマンドです")
+@app_commands.describe(text="ステータスを設定します")
+async def text(interaction: discord.Interaction, text: str):
+    if interaction.user.id in ALLOWED_USERS:
+        await bot.change_presence(status=discord.Status.online, activity=discord.CustomActivity(name=f'{text}'))
+        await interaction.response.send_message(f'ステータスを「{text}」に設定しました。',ephemeral=True)
+    else:
+        await interaction.response.send_message('このコマンドを実行する権限がありません。', ephemeral=True)
 
 async def send_update_message():
     channel_id = 1295239928807948411
