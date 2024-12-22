@@ -13,6 +13,8 @@ intents = discord.Intents.all()
 # Botの準備
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+ALLOWED_USERS = [1212687868603007067,1212161927405637712]
+
 # Botが起動したときのイベント
 @bot.event
 async def on_ready():
@@ -27,7 +29,6 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    global is_sending_message  # グローバル変数として宣言
     message_content = message.content
     message_id = message.id
     guild = message.guild
@@ -45,6 +46,9 @@ async def on_message(message):
     file = message.attachments
     file_url = file[0].url if file else None
     message_embeds = message.embeds
+
+    message_link_pattern = re.compile(r'https://discord.com/channels/(\d+)/(\d+)/(\d+)')
+    match = message_link_pattern.search(message.content)
 
     if match:
         server_id = int(match.group(1))
@@ -111,6 +115,28 @@ async def on_message(message):
                     await message.channel.send('メッセージを表示する権限がありません。')
                 except discord.HTTPException as e:
                     await message.channel.send(f'メッセージの取得に失敗しました: {e}')
+
+    if message.content == "kotori!bot stop":
+        if server_id == 1275631726206386297:
+            if user_id == 1295239928807948411:
+                embed = discord.Embed(title='BOTが停止しました^^',description="なるはやで起動させてください。",color=0xff0000,timestamp=datetime.utcnow())
+                await message.channel.send(embed=embed)
+                sys.exit()
+            else:
+                await message.channel.send("あなたにはこの操作を行う権限がありません。")
+    # 「r!test」が送信された場合に「あ」と返す
+    elif message.content == "b!test" or message.content == "kotori!test":
+        await message.channel.send("GitHubで起動されています")
+    # 「r!vsc」が送信された場合にvscのリンクを返す
+    elif message.content == "kotori!vsc":
+        if user_id == 1212687868603007067:
+            await message.channel.send("https://vscode.dev/github/kotori-server/kotori-server-bot?vscode-lang=ja")
+    elif message.content == "kotori!link":
+        await message.channel.send("https://github.com/fynk7777/kotori-server-bot")
+
+    if isinstance(message.channel, discord.TextChannel) and message.channel.is_news():
+        # メッセージを公開
+        await message.publish()
 
 @bot.tree.command(name="status",description="ステータスを設定するコマンドです")
 @app_commands.describe(text="ステータスを設定します")
