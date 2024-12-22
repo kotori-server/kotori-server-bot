@@ -149,6 +149,7 @@ async def on_message(message):
     if user_id == 1295240136564408350:
         if channel_id == 1320331608997236756:
             starting = True
+            print('startingをTrueに変更しました')
 
     if starting:
         if user_id == 1295238157574340670:
@@ -156,7 +157,9 @@ async def on_message(message):
                 embeds = message.embeds
                 if embeds is not None and len(embeds) != 0:
                     if "BOTが起動しました" in (embeds[0].title or ""):
+                        print('BOTを停止しました')
                         sys.exit()
+
 
 @bot.tree.command(name="status",description="ステータスを設定するコマンドです")
 @app_commands.describe(text="ステータスを設定します")
