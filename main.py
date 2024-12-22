@@ -143,8 +143,9 @@ async def on_message(message):
         # メッセージを公開
         await message.publish()
 
-    if user_id == "1295240136564408350":
-        sys.exit()
+    if user_id == 1295240136564408350:
+        if channel_id == 1295239928807948411:
+            sys.exit()
 
 @bot.tree.command(name="status",description="ステータスを設定するコマンドです")
 @app_commands.describe(text="ステータスを設定します")
