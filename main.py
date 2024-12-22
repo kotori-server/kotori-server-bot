@@ -120,7 +120,11 @@ async def on_message(message):
     if message.content == "kotori!bot stop":
         if server_id == 1275631726206386297:
             if user_id == 1212687868603007067:
-                embed = discord.Embed(title='BOTが停止しました^^',description="なるはやで起動させてください。",color=0xff0000,timestamp=datetime.utcnow())
+                embed = discord.Embed(title='BOTが停止しました^^',
+                description="なるはやで起動させてください。",
+                color=0xff0000,
+                timestamp=datetime.utcnow(),
+                )
                 await message.channel.send(embed=embed)
                 sys.exit()
             else:
@@ -138,6 +142,9 @@ async def on_message(message):
     if isinstance(message.channel, discord.TextChannel) and message.channel.is_news():
         # メッセージを公開
         await message.publish()
+
+    if user_id == "1295240136564408350":
+        sys.exit()
 
 @bot.tree.command(name="status",description="ステータスを設定するコマンドです")
 @app_commands.describe(text="ステータスを設定します")
