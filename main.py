@@ -12,6 +12,8 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.all()
 
+starting = False
+
 # Botの準備
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -146,7 +148,15 @@ async def on_message(message):
 
     if user_id == 1295240136564408350:
         if channel_id == 1295239928807948411:
-            sys.exit()
+            starting = True
+
+    if starting:
+        if user_id == 1295238157574340670:
+            if channel_id == 1295239928807948411:
+                embeds = message.embeds
+                if embeds is not None and len(embeds) != 0:
+                    if "BOTが起動しました" in (embeds[0].title or ""):
+                        sys.exit()
 
 @bot.tree.command(name="status",description="ステータスを設定するコマンドです")
 @app_commands.describe(text="ステータスを設定します")
