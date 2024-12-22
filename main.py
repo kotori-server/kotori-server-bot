@@ -119,7 +119,7 @@ async def on_message(message):
 
     if message.content == "kotori!bot stop":
         if server_id == 1275631726206386297:
-            if user_id == 1295239928807948411:
+            if user_id == 1212687868603007067:
                 embed = discord.Embed(title='BOTが停止しました^^',description="なるはやで起動させてください。",color=0xff0000,timestamp=datetime.utcnow())
                 await message.channel.send(embed=embed)
                 sys.exit()
